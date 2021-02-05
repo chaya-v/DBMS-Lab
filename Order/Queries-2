@@ -1,0 +1,59 @@
+1.
+Count the customers with grades above Bangalore’s average.
+
+SELECT GRADE, COUNT (DISTINCT CUSTOMER_ID) AS NO_OF_CUSTOMER
+FROM CUSTOMER
+GROUP BY GRADE
+HAVING GRADE > (SELECT AVG(GRADE)
+FROM CUSTOMER
+WHERE CITY='BANGALORE');
+
+
+2.
+Find the name and numbers of all salesmen who had more than one customer.
+
+SELECT SALESMAN_ID, NAME
+FROM SALESMAN S
+WHERE ((SELECT COUNT (*)
+FROM CUSTOMER
+WHERE SALESMAN_ID=S.SALESMAN_ID)>1);
+
+
+3.
+List all salesmen and indicate those who have and don’t have customers in their cities (Use UNION operation).
+
+SELECT S.SALESMAN_ID, S.CITY
+FROM SALESMAN S
+WHERE EXISTS (SELECT CITY FROM CUSTOMER WHERE S.CITY=CITY AND S.SALESMAN_ID=SALESMAN_ID)
+UNION
+SELECT SALESMAN_ID,'NO MATCH OF CITIES'
+FROM SALESMAN S
+WHERE NOT EXISTS (SELECT CITY FROM CUSTOMER WHERE S.CITY=CITY AND S.SALESMAN_ID=SALESMAN_ID);
+
+
+4.
+Create a view that finds the salesman who has the customer with the highest order of a day.
+
+SELECT DISTINCT S.SALESMAN_ID,S.ORD_DATE FROM ORDERS S
+WHERE (SELECT SUM(PURCHASE_AMT) 
+FROM ORDERS 
+WHERE SALESMAN_ID=S.SALESMAN_ID AND ORD_DATE=S.ORD_DATE AND S.CUSTOMER_ID=CUSTOMER_ID) = (SELECT MAX(SUM(PURCHASE_AMT))
+FROM ORDERS S1 
+WHERE S1.ORD_DATE=S.ORD_DATE 
+GROUP BY S1.ORD_DATE,S1.SALESMAN_ID,S1.CUSTOMER_ID);
+
+
+5.
+Demonstrate the DELETE operation by removing salesman with id 1000. All his orders must
+also be deleted.
+Use ON DELETE CASCADE at the end of foreign key definitions while creating child table
+orders and then execute the following:
+Use ON DELETE SET NULL at the end of foreign key definitions while creating child table
+customers and then executes the following:
+
+DELETE FROM SALESMAN
+WHERE SALESMAN_ID=1000;
+
+
+
+
